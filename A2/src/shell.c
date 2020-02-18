@@ -27,6 +27,42 @@ int parallelCmdCount;
 
 mode_t permissionMask = 0755;
 
+int child_status_combined;
+int childsNotReturned;
+
+int pipes[9][2];
+
+int clearCommandStruct() {
+	for (int i=0; i<10; i++) {
+		parallelCommands[i].input = NULL;
+		parallelCommands[i].argCount = 0;
+		parallelCommands[i].inChanged = 0;
+		parallelCommands[i].outChanged = 0;
+		for (int j=0; j<80; j++) {
+			parallelCommands[i].inStreamBuff[j] = '\0';
+			parallelCommands[i].outStreamBuff[j] = '\0';
+		}
+		for (int j=0; j<10; j++) {
+			parallelCommands[i].cmdArgsArr[j] = NULL;
+		}
+	}
+
+	for (int i=0; i<2000; i++) {
+		mainInput[i] = '\0';
+	}
+
+	parallelCmdCount = 0;
+	return 0;
+
+	for (int i=0; i<9; i++) {
+		pipes[0][i] = 0;
+		pipes[1][i] = 0;
+	}
+	child_status_combined = 0;
+	child_status_combined = 0;
+	return 0;
+}
+
 int parseCmd() {
 	char* mainInp = mainInput;
 	int cmdIndex = 0;
@@ -148,11 +184,6 @@ int execute(char** argv) {
 	return errorCode;
 }
 
-int child_status_combined;
-int childsNotReturned;
-
-int pipes[9][2];
-
 int makePipe(int pipeIndex) {
 	int errorCode = pipe(pipes[pipeIndex]);
 	if (errorCode < 0) {
@@ -185,24 +216,6 @@ int execCmd() {
 		// close(in);
 		// close(out);
 
-		// connnect pipes
-		if (parallelCmdCount > 1) {
-			if (i == 0) {
-				makePipe(i);
-				dup2(pipes[i][1], 1);
-				close(pipes[i][1]);
-			} else if (i == parallelCmdCount-1) {
-				dup2(pipes[i-1][0], 0);
-				close(pipes[i-1][0]);
-			} else {
-				makePipe(i);
-				dup2(pipes[i][1], 1);
-				close(pipes[i][1]);
-				dup2(pipes[i-1][0], 0);
-				close(pipes[i-1][0]);
-			}
-		}
-
 		int errorCode = 0;
 		if (strcmp(argv[0], "exit") == 0) exit(0);
 		else if (strcmp(argv[0], "cd") == 0) {
@@ -225,20 +238,40 @@ int execCmd() {
 			if(ret_pid == 0) {
 				/* This is done by the child process. */
 
+				// connnect pipes
+				printf("starting %s\n", argv[0]);
+				if (parallelCmdCount > 1) {
+					if (i == 0) {
+						makePipe(i);
+						dup2(pipes[i][1], STDOUT_FILENO);
+						// close(pipes[1][i]);
+					} else if (i == parallelCmdCount-1) {
+						dup2(pipes[i-1][0], STDIN_FILENO);
+						// close(pipes[0][i-1]);
+					} else {
+						makePipe(i);
+						dup2(pipes[i][1], STDOUT_FILENO);
+						// close(pipes[1][i]);
+						dup2(pipes[i-1][0], STDIN_FILENO);
+						// close(pipes[0][i-1]);
+					}
+				}
+
 				// connect input output
 				if (parallelCommands[i].inChanged) {
 					int in = open(parallelCommands[i].inStreamBuff, O_RDONLY);
-					dup2(in, 0);
+					dup2(in, STDIN_FILENO);
 					close(in);
 				}
 
 				if (parallelCommands[i].outChanged) {
 					int out = open(parallelCommands[i].outStreamBuff, O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IRGRP | S_IWGRP | S_IWUSR);
-					dup2(out, 1);
+					dup2(out, STDOUT_FILENO);
 					close(out);
 				}
 				
-				printf("%d: %s\n", ret_pid, argv[0]);
+				printf("executing %s\n", argv[0]);
+				// printf("%d: %s\n", ret_pid, argv[0]);
 				exit(execute(argv));
 			}
 		}	
@@ -250,17 +283,31 @@ int execCmd() {
 	while (childsNotReturned>0) {
 		int childStatus;
 		pid_t childId = wait(&childStatus);
-		printf("%d\n", childId);
-		child_status_combined = child_status_combined || 1;
+		child_status_combined = child_status_combined || childStatus;
 
 		if (childId == -1) return -1;
 		else childsNotReturned--;
 	}
+
+	for (int i=0; i<parallelCmdCount; i++) {
+		if (parallelCmdCount > 1) {
+			if (i == 0) {
+				close(pipes[i][1]);
+			} else if (i == parallelCmdCount-1) {
+				close(pipes[i-1][0]);
+			} else {
+				close(pipes[i][1]);
+				close(pipes[i-1][0]);
+			}
+		}
+	}
+
 	return 0;
 }
 
 int mainloop() {
 	while(1) {
+		clearCommandStruct();
 		printf("shell> ");
 		parseCmd();
 		execCmd();

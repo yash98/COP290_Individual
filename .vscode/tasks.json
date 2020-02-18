@@ -1,0 +1,43 @@
+{
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "gcc build bignum",
+			"command": "make",
+			"args": [],
+			"options": {
+				"cwd": "${workspaceFolder}/A3"
+			}
+		}, 
+		{
+			"type": "shell",
+			"label": "gcc build custom shell",
+			"command": "/usr/bin/gcc",
+			"args": [
+				"-g",
+				"2016CS50403_sh.c",
+				"-o",
+				"shell"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}/A2/src"
+			}
+		}, 
+		{
+			"type": "shell",
+			"label": "gcc build custom t",
+			"command": "/usr/bin/gcc",
+			"args": [
+				"-g",
+				"t1.c",
+				"-o",
+				"t1"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}/A2/src"
+			}
+		}
+
+	],
+	"version": "2.0.0"
+}

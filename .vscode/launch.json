@@ -1,0 +1,72 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+    {
+        "name": "bignum",
+        "type": "cppdbg",
+        "request": "launch",
+        "program": "${workspaceFolder}/A3/exe/bignum",
+        "args": [],
+        "stopAtEntry": false,
+        "cwd": "${workspaceFolder}/A3/",
+        "environment": [],
+        "externalConsole": false,
+        "MIMode": "gdb",
+        "setupCommands": [
+            {
+                "description": "Enable pretty-printing for gdb",
+                "text": "-enable-pretty-printing",
+                "ignoreFailures": false
+            }
+        ],
+        "preLaunchTask": "gcc build bignum",
+        "miDebuggerPath": "/usr/bin/gdb"
+    },
+        {
+            "name": "shell",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/A2/src/shell",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/A2/src",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": false
+                }
+            ],
+            "preLaunchTask": "gcc build custom shell",
+            "miDebuggerPath": "/usr/bin/gdb"
+        }, 
+        {
+            "name": "t",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/A2/src/t1",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/A2/src",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": false
+                }
+            ],
+            "preLaunchTask": "gcc build custom t",
+            "miDebuggerPath": "/usr/bin/gdb"
+        }
+
+    ]
+}
