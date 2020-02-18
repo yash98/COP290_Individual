@@ -54,7 +54,7 @@ void bInit(bignum* b, char* s, unsigned int cut) {
 
 	// default cutOff
 	if (cut == 0) {
-		b->cutOff = 10000;
+		b->cutOff = 99999;
 	} else {
 		b->cutOff = cut;
 	}
@@ -74,12 +74,12 @@ void bInit(bignum* b, char* s, unsigned int cut) {
 	while(notCopied > 0) {
 		int i;
 		if (notCopied > b->cutOffSize) {
-			strncpy(wholeStr, sCopy+notCopied-b->cutOffSize, sizeof(char)*b->cutOffSize);
 			i = 0;
+			strncpy(wholeStr, sCopy+notCopied-b->cutOffSize, sizeof(char)*b->cutOffSize);
 			notCopied -= b->cutOffSize;
 		} else {
-			strncpy(wholeStr, sCopy, sizeof(char)*notCopied);
 			i = b->cutOffSize-notCopied;
+			strncpy(&wholeStr[i], sCopy, sizeof(char)*notCopied);
 			notCopied = 0;
 		}
 
@@ -141,7 +141,7 @@ int main() {
 	vector v1;
 	vInit(&v1, 10);
 	bignum b1;
-	bInit(&b1, "12345678901234567890.0123456789", 0);
+	bInit(&b1, "345078901234567890.0123456789", 0);
 	char* p1;
 	str(&b1, &p1);
 	printf("%s\n", p1);
