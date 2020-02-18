@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 void vInit(vector* v, int size) {
-	v->array = (unsigned int*) malloc(size*sizeof(unsigned int));
+	v->array = (signed int*) malloc(size*sizeof(signed int));
 	v->size = size;
 	v->filled = 0;
 }
@@ -16,7 +16,7 @@ void vDel(vector* v) {
 
 void pushback(vector* v, int x) {
 	if (v->filled == v->size) {
-		v->array = (unsigned int*) realloc(v->array, 2*v->size*sizeof(unsigned int));
+		v->array = (signed int*) realloc(v->array, 2*v->size*sizeof(signed int));
 		v->size *= 2;
 	}
 	*(v->array+v->filled) = x;
@@ -28,7 +28,7 @@ int pop(vector* v) {
 	return *(v->array+v->filled+1);
 }
 
-void bInit(bignum* b, char* s, unsigned int cut) {
+void bInit(bignum* b, char* s, signed int cut) {
 	// sign
 	if(*s == '-') {
 		b->sign = -1;
@@ -224,7 +224,6 @@ void bignumCopy(bignum* dest, bignum source) {
 
 bignum addInternal(bignum a, bignum b, int signA, int signB) {
 	bignum c;
-	bInit(&c, "0", 0);
 
 	int storeSignA = a.sign;
 	int storeSignB = b.sign;
@@ -232,6 +231,8 @@ bignum addInternal(bignum a, bignum b, int signA, int signB) {
 	b.sign = signB;
 
 	if (a.sign == b.sign) {
+		bInit(&c, "0", 0);
+
 		if (a.sign == 0) return c;
 
 		c.sign = a.sign;
@@ -250,12 +251,12 @@ bignum addInternal(bignum a, bignum b, int signA, int signB) {
 
 		int i;
 		for (i=1; i < maxFilled; i++) {
-			unsigned int p = 0;
+			signed int p = 0;
 			if (i < a.whole.filled) p += *(a.whole.array + i);
 			if (i < b.whole.filled) p += *(b.whole.array + i);
 
 			// carrying
-			unsigned int lastCalc = *(c.whole.array + i - 1);
+			signed int lastCalc = *(c.whole.array + i - 1);
 			if (lastCalc > c.cutOff) {
 				p += (lastCalc / (c.cutOff + 1));
 				*(c.whole.array + i - 1) = (lastCalc % (c.cutOff + 1));
@@ -265,7 +266,7 @@ bignum addInternal(bignum a, bignum b, int signA, int signB) {
 		}
 
 		// last carry
-		unsigned int lastCalc = *(c.whole.array + i - 1);
+		signed int lastCalc = *(c.whole.array + i - 1);
 		if (lastCalc > c.cutOff) {
 			pushback(&(c.whole), (lastCalc / (c.cutOff + 1)));
 			*(c.whole.array + i - 1) = (lastCalc % (c.cutOff + 1));
@@ -273,6 +274,89 @@ bignum addInternal(bignum a, bignum b, int signA, int signB) {
 	} else {
 		// revert sign and subtract
 		c = subInternal(a, b, a.sign, -1 * b.sign);
+	}
+
+	a.sign = storeSignA;
+	b.sign = storeSignB;
+
+	return c;
+}
+
+bignum subInternal(bignum a, bignum b, int signA, int signB) {
+	bignum c;
+
+	int storeSignA = a.sign;
+	int storeSignB = b.sign;
+	a.sign = signA;
+	b.sign = signB;
+
+	if (a.sign == b.sign) {
+		bInit(&c, "0", 0);
+		if (a.sign == 0) return c;
+
+		c.decimal = a.decimal + b.decimal;
+
+		// carrying
+		// floats less than 1.0 can't sum more equal to 2.0
+		if (c.decimal <= 0.0) {
+			*(c.whole.array) -= 1;
+			c.decimal += 1.0;
+		}
+
+		int maxFilled = max(a.whole.filled, b.whole.filled);
+		int minFilled = min(a.whole.filled, b.whole.filled);
+
+		for (int i=1; i<maxFilled; i++) {
+			pushback(&(b.whole), 0);
+		}
+
+		int signFixed = 0;
+
+		for (int i=maxFilled-1; i >= 0; i++) {
+			signed int * place = *(c.whole.array + i);
+
+			if (i < a.whole.filled) *place += *(a.whole.array + i);
+			// negative sign
+			if (i < b.whole.filled) *place -= *(b.whole.array + i);
+
+			if (i == maxFilled - 1) {
+				if (*place < 0) {
+					c.sign = -1 * a.sign;
+					*place = c.cutOff + 1 - *place;
+				} else if (*place > 0) {
+					c.sign = a.sign;
+				}
+			} else {
+				if (*place < 0) {
+					*(place+1) -= 1;
+					*(place) = c.cutOff + 1 - *place;
+				}
+			}
+
+			if ((*place == 0) ) {
+				if (!(signFixed)) {
+					pop(&(c.whole));
+				}
+			} else {
+				if (!(signFixed)) {
+					signFixed = 1;
+					if (*place < 0) {
+						c.sign = -1 * a.sign;
+					} else {
+						c.sign = a.sign;
+					}
+				}
+			}
+		}
+
+		// if sub results in zero till end
+		if (!signFixed) {
+			c.sign = *(c.whole.array) * a.sign;
+		}
+
+	} else {
+		// revert sign and subtract
+		c = addInternal(a, b, a.sign, -1 * b.sign);
 	}
 
 	a.sign = storeSignA;

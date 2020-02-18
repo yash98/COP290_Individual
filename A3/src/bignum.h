@@ -8,7 +8,7 @@ unisgned int in light or or big endian dont care
 float limited to 20 decimal points
 **/
 typedef struct vectorS {
-	unsigned int* array;
+	signed int* array;
 	int size;
 	int filled;
 } vector;
@@ -29,7 +29,7 @@ typedef struct bignumS {
 	vector whole;
 	float decimal;
 	int sign;
-	unsigned int cutOff;
+	signed int cutOff;
 	int cutOffSize;
 } bignum;
 
@@ -38,7 +38,7 @@ void vDel(vector* v);
 void pushback(vector* v, int x);
 int pop(vector* v);
 
-void bInit(bignum* b, char* s, unsigned int cut);
+void bInit(bignum* b, char* s, signed int cut);
 void bDel(bignum* b);
 void str(bignum* b, char** c);
 
@@ -51,7 +51,7 @@ void bignumCopy(bignum* dest, bignum source);
 /**
 c = a op b
 **/
-bignum addInternal(bignum a, bignum b, int signA, int singB);
-bignum subInternal(bignum a, bignum b, int signA, int singB);
+bignum addInternal(bignum a, bignum b, int signA, int signB);
+bignum subInternal(bignum a, bignum b, int signA, int signB);
 
 #endif
