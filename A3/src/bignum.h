@@ -3,12 +3,28 @@
 
 #include <float.h>
 
+/**
+unisgned int in light or or big endian dont care
+float limited to 20 decimal points
+**/
 typedef struct vectorS {
 	unsigned int* array;
 	int size;
 	int filled;
 } vector;
 
+/**
+whole:
+	convention least significant bits first in vector
+sign:
+	0 for 0 bignum
+	-1 for negative +1 for positive
+cutOff:
+	if uint member of whole.array > cutOff carry
+	can only be of form re (9)+
+cutOffSize:
+	digits in cutOff
+**/
 typedef struct bignumS {
 	vector whole;
 	float decimal;
@@ -26,6 +42,16 @@ void bInit(bignum* b, char* s, unsigned int cut);
 void bDel(bignum* b);
 void str(bignum* b, char** c);
 
+int isZero(bignum b);
 int comp(bignum left, bignum right);
+int compFloat(float left, float right);
+
+void bignumCopy(bignum* dest, bignum source);
+
+/**
+c = a op b
+**/
+bignum addInternal(bignum a, bignum b, int signA, int singB);
+bignum subInternal(bignum a, bignum b, int signA, int singB);
 
 #endif
