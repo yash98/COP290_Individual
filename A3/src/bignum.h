@@ -33,9 +33,12 @@ typedef struct bignumS {
 	int cutOffSize;
 } bignum;
 
+int max(int a, int b);
+int min(int a, int b);
+
 void vInit(vector* v, int size);
 void vDel(vector* v);
-void pushback(vector* v, int x);
+void pushback(vector* v, signed int x);
 int pop(vector* v);
 
 void bInit(bignum* b, char* s, signed int cut);

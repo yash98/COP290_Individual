@@ -5,7 +5,7 @@ all:
 	make exe/bignum
 
 exe/bignum: src/bignum.c
-	cc -g $^ -o $@ 
+	cc -g $^ -o $@
 
 dir:
 	mkdir -p exe obj

@@ -4,6 +4,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+int max(int a, int b) {
+	if (a > b) return a;
+	else return b;
+}
+
+int min(int a, int b) {
+	if (a > b) return b;
+	else return a;
+
+}
+
 void vInit(vector* v, int size) {
 	v->array = (signed int*) malloc(size*sizeof(signed int));
 	v->size = size;
@@ -14,7 +25,7 @@ void vDel(vector* v) {
 	free(v->array);
 }
 
-void pushback(vector* v, int x) {
+void pushback(vector* v, signed int x) {
 	if (v->filled == v->size) {
 		v->array = (signed int*) realloc(v->array, 2*v->size*sizeof(signed int));
 		v->size *= 2;
@@ -61,7 +72,7 @@ void bInit(bignum* b, char* s, signed int cut) {
 
 	// default cutOff
 	if (cut == 0) {
-		b->cutOff = 99999;
+		b->cutOff = 9999;
 	} else {
 		b->cutOff = cut;
 	}
@@ -294,7 +305,7 @@ bignum subInternal(bignum a, bignum b, int signA, int signB) {
 		bInit(&c, "0", 0);
 		if (a.sign == 0) return c;
 
-		c.decimal = a.decimal + b.decimal;
+		c.decimal = a.decimal - b.decimal;
 
 		// carrying
 		// floats less than 1.0 can't sum more equal to 2.0
@@ -307,35 +318,23 @@ bignum subInternal(bignum a, bignum b, int signA, int signB) {
 		int minFilled = min(a.whole.filled, b.whole.filled);
 
 		for (int i=1; i<maxFilled; i++) {
-			pushback(&(b.whole), 0);
+			pushback(&(c.whole), 0);
 		}
 
 		int signFixed = 0;
 
-		for (int i=maxFilled-1; i >= 0; i++) {
-			signed int * place = *(c.whole.array + i);
+		for (int i=maxFilled-1; i >= 0; i--) {
+			signed int* place = c.whole.array + i;
 
 			if (i < a.whole.filled) *place += *(a.whole.array + i);
 			// negative sign
 			if (i < b.whole.filled) *place -= *(b.whole.array + i);
 
-			if (i == maxFilled - 1) {
-				if (*place < 0) {
-					c.sign = -1 * a.sign;
-					*place = c.cutOff + 1 - *place;
-				} else if (*place > 0) {
-					c.sign = a.sign;
-				}
-			} else {
-				if (*place < 0) {
-					*(place+1) -= 1;
-					*(place) = c.cutOff + 1 - *place;
-				}
-			}
-
 			if ((*place == 0) ) {
-				if (!(signFixed)) {
-					pop(&(c.whole));
+				if (!signFixed) {
+					if (i != 0) {
+						pop(&(c.whole));
+					}
 				}
 			} else {
 				if (!(signFixed)) {
@@ -347,11 +346,42 @@ bignum subInternal(bignum a, bignum b, int signA, int signB) {
 					}
 				}
 			}
+
+			if (i == maxFilled - 1) {
+				if (*place < 0) {
+					// don't need to minus as its already negative
+					*place = c.cutOff + 1 + *place;
+				}
+			} else {
+				if (*place < 0) {
+					int nextPlace = i+1;
+					while (nextPlace < c.whole.filled) {
+						if (*(c.whole.array + nextPlace) != 0) {
+							*(c.whole.array + nextPlace) -= 1;
+							if ((*(c.whole.array + nextPlace) == 0) && (nextPlace == c.whole.filled)) {
+								pop(&(c.whole));
+							}
+							nextPlace -= 1;
+							break;	
+						}
+						nextPlace += 1;
+					}
+					while (nextPlace > i) {
+						*(c.whole.array + nextPlace) = c.cutOff;
+						nextPlace -= 1;
+					}
+
+					// don't need to minus as its already negative
+					*(place) = c.cutOff + 1 + *place;
+				}
+			}
+
 		}
 
 		// if sub results in zero till end
 		if (!signFixed) {
 			c.sign = *(c.whole.array) * a.sign;
+			*(c.whole.array) = 0;
 		}
 
 	} else {
@@ -366,21 +396,27 @@ bignum subInternal(bignum a, bignum b, int signA, int signB) {
 }
 
 int main() {
-	vector v1;
-	vInit(&v1, 10);
 	bignum b1;
-	bignum b2;
 	bInit(&b1, "345078901234567890.0123456789", 0);
-	bInit(&b2, "0", 0);
 	char* p1;
 	str(&b1, &p1);
 	printf("%s\n", p1);
+
+	bignum b2;
+	bInit(&b2, "1234567890.99", 0);
 	char* p2;
 	str(&b2, &p2);
 	printf("%s\n", p2);
-	vDel(&v1);
+
+	bignum c = subInternal(b1, b2, 1, 1);
+	char* p3;
+	str(&c, &p3);
+	printf("%s\n", p3);
+
 	bDel(&b1);
 	free(p1);
 	bDel(&b2);
 	free(p2);
+	bDel(&c);
+	free(p3);
 }
