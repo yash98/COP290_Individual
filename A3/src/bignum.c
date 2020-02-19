@@ -113,10 +113,16 @@ void bDel(bignum* b) {
 }
 
 void str(bignum* b, char** c) {
-	int strSize = (b->whole).filled * b->cutOffSize + 20 + 1;
+	int strSize = 1 + ((b->whole).filled * b->cutOffSize) + 20 + 1;
 
 	*c = malloc(sizeof(char)*strSize);
 	char* w = *c;
+
+	if (b->sign == -1) {
+		*w = '-';
+		w += 1;
+	}
+
 	char wholeStr[b->cutOffSize+1];
 	wholeStr[b->cutOffSize] = '\0';
 
@@ -277,7 +283,7 @@ bignum addInternal(bignum a, bignum b, int signA, int signB) {
 		}
 
 		// last carry
-		signed int lastCalc = *(c.whole.array + i - 1);
+		signed int lastCalc = *(c.whole.array + maxFilled - 1);
 		if (lastCalc > c.cutOff) {
 			pushback(&(c.whole), (lastCalc / (c.cutOff + 1)));
 			*(c.whole.array + i - 1) = (lastCalc % (c.cutOff + 1));
@@ -304,8 +310,24 @@ bignum subInternal(bignum a, bignum b, int signA, int signB) {
 	if (a.sign == b.sign) {
 		bInit(&c, "0", 0);
 		if (a.sign == 0) return c;
+	
+		int compare = comp(a, b);
+		if (compare == 0) return c;
 
-		c.decimal = a.decimal - b.decimal;
+		bignum greater;
+		bignum lesser;
+
+		if (compare == 1) {
+			greater = a;
+			lesser = b;
+			c.sign = a.sign;
+		} else {
+			greater = b;
+			lesser = a;
+			c.sign = -1 * a.sign;
+		}
+
+		c.decimal = greater.decimal - lesser.decimal;
 
 		// carrying
 		// floats less than 1.0 can't sum more equal to 2.0
@@ -314,74 +336,48 @@ bignum subInternal(bignum a, bignum b, int signA, int signB) {
 			c.decimal += 1.0;
 		}
 
-		int maxFilled = max(a.whole.filled, b.whole.filled);
-		int minFilled = min(a.whole.filled, b.whole.filled);
+		int maxFilled = max(greater.whole.filled, lesser.whole.filled);
+		int minFilled = min(greater.whole.filled, lesser.whole.filled);
 
 		for (int i=1; i<maxFilled; i++) {
 			pushback(&(c.whole), 0);
 		}
 
-		int signFixed = 0;
+		// int signFixed = 0;
+		int zeroPopEnd = 0;
 
 		for (int i=maxFilled-1; i >= 0; i--) {
 			signed int* place = c.whole.array + i;
 
-			if (i < a.whole.filled) *place += *(a.whole.array + i);
+			if (i < greater.whole.filled) *place += *(greater.whole.array + i);
 			// negative sign
-			if (i < b.whole.filled) *place -= *(b.whole.array + i);
+			if (i < lesser.whole.filled) *place -= *(lesser.whole.array + i);
 
-			if ((*place == 0) ) {
-				if (!signFixed) {
-					if (i != 0) {
-						pop(&(c.whole));
-					}
-				}
-			} else {
-				if (!(signFixed)) {
-					signFixed = 1;
-					if (*place < 0) {
-						c.sign = -1 * a.sign;
-					} else {
-						c.sign = a.sign;
-					}
-				}
-			}
-
-			if (i == maxFilled - 1) {
-				if (*place < 0) {
-					// don't need to minus as its already negative
-					*place = c.cutOff + 1 + *place;
-				}
-			} else {
-				if (*place < 0) {
-					int nextPlace = i+1;
-					while (nextPlace < c.whole.filled) {
-						if (*(c.whole.array + nextPlace) != 0) {
-							*(c.whole.array + nextPlace) -= 1;
-							if ((*(c.whole.array + nextPlace) == 0) && (nextPlace == c.whole.filled)) {
-								pop(&(c.whole));
-							}
-							nextPlace -= 1;
-							break;	
-						}
-						nextPlace += 1;
-					}
-					while (nextPlace > i) {
-						*(c.whole.array + nextPlace) = c.cutOff;
+			if (*place < 0) {
+				int nextPlace = i+1;
+				while (nextPlace < c.whole.filled) {
+					if (*(c.whole.array + nextPlace) != 0) {
+						*(c.whole.array + nextPlace) -= 1;
 						nextPlace -= 1;
+						break;	
 					}
-
-					// don't need to minus as its already negative
-					*(place) = c.cutOff + 1 + *place;
+					nextPlace += 1;
 				}
+				while (nextPlace > i) {
+					*(c.whole.array + nextPlace) = c.cutOff;
+					nextPlace -= 1;
+				}
+
+				// don't need to minus as its already negative
+				*(place) = c.cutOff + 1 + *place;
 			}
-
-		}
-
-		// if sub results in zero till end
-		if (!signFixed) {
-			c.sign = *(c.whole.array) * a.sign;
-			*(c.whole.array) = 0;
+			if (*place == 0) {
+				if (!zeroPopEnd) {
+					pop(&c.whole);
+				}
+			} else {
+				zeroPopEnd = 1;
+			}
 		}
 
 	} else {
@@ -395,23 +391,72 @@ bignum subInternal(bignum a, bignum b, int signA, int signB) {
 	return c;
 }
 
+bignum add(bignum a, bignum b) {
+	return addInternal(a, b, a.sign, b.sign);
+}
+
+bignum sub(bignum a, bignum b) {
+	return subInternal(a, b, a.sign, b.sign);
+}
+
+bignum mul(bignum a, bignum b) {
+	bignum c;
+	bInit(&c, "0", 0);
+
+	if (isZero(a) || isZero(b)) return c;
+
+	c.sign = a.sign * b.sign;
+
+	c.decimal = a.decimal * b.decimal;
+
+	for (int i=1; i <= a.whole.filled + b.whole.filled - 2; i++) {
+		pushback(&(c.whole), 0);
+	}
+
+	for (int i=0; i < a.whole.filled; i++) {
+		for (int j=0; j < b.whole.filled; j++) {
+			*(c.whole.array + i + j) += *(a.whole.array + i) * *(b.whole.array + j);
+		}
+	}
+
+	return c;
+}
+
+bignum div(bignum a, bignum b) {
+	bignum c;
+
+	return c;
+}
+
 int main() {
 	bignum b1;
 	bInit(&b1, "345078901234567890.0123456789", 0);
+	// bInit(&b1, "345078901234567890.0123456789", 0);
 	char* p1;
 	str(&b1, &p1);
 	printf("%s\n", p1);
 
 	bignum b2;
-	bInit(&b2, "1234567890.99", 0);
+	bInit(&b2, "-1234567890.99", 0);
+	// bInit(&b2, "12121212121212121211234567890.01111111111111", 0);
 	char* p2;
 	str(&b2, &p2);
 	printf("%s\n", p2);
 
-	bignum c = subInternal(b1, b2, 1, 1);
+	bignum c = add(b1, b2);
 	char* p3;
 	str(&c, &p3);
 	printf("%s\n", p3);
+
+	bignum d = sub(b1, b2);
+	char* p4;
+	str(&d, &p4);
+	printf("%s\n", p4);
+
+	bignum e = mul(b1, b2);
+	char* p5;
+	str(&e, &p5);
+	printf("%s\n", p5);
 
 	bDel(&b1);
 	free(p1);
@@ -419,4 +464,8 @@ int main() {
 	free(p2);
 	bDel(&c);
 	free(p3);
+	bDel(&d);
+	free(p4);
+	bDel(&e);
+	free(p5);
 }

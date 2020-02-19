@@ -1,4 +1,4 @@
-.phony: all dir clean
+.phony: all dir clean test
 
 all:
 	make dir
@@ -6,6 +6,9 @@ all:
 
 exe/bignum: src/bignum.c
 	cc -g $^ -o $@
+
+test: src/test.c
+	cc -g $^ -o exe/test
 
 dir:
 	mkdir -p exe obj

@@ -57,4 +57,9 @@ c = a op b
 bignum addInternal(bignum a, bignum b, int signA, int signB);
 bignum subInternal(bignum a, bignum b, int signA, int signB);
 
+bignum add(bignum a, bignum b);
+bignum sub(bignum a, bignum b);
+bignum mul(bignum a, bignum b);
+bignum div(bignum a, bignum b);
+
 #endif
