@@ -72,7 +72,7 @@ void bInit(bignum* b, char* s, signed int cut) {
 
 	// default cutOff
 	if (cut == 0) {
-		b->cutOff = 9999;
+		b->cutOff = 99999;
 	} else {
 		b->cutOff = cut;
 	}
@@ -419,11 +419,46 @@ bignum mul(bignum a, bignum b) {
 		}
 	}
 
+	for (int i=1; i <= a.whole.filled + b.whole.filled - 2; i++) {
+		int * thisCalc = c.whole.array + i;
+		if (i == a.whole.filled + b.whole.filled - 2) {
+			if (*thisCalc > c.cutOff) {
+				pushback(&c.whole, (*thisCalc / (c.cutOff + 1)));
+				*thisCalc = (*thisCalc % (c.cutOff + 1));
+			}
+		} else {
+			if (*thisCalc > c.cutOff) {
+				*(thisCalc + 1) += (*thisCalc / (c.cutOff + 1));
+				*thisCalc = (*thisCalc % (c.cutOff + 1));
+			}
+		}
+	}
+
 	return c;
 }
 
 bignum div(bignum a, bignum b) {
 	bignum c;
+
+	if (isZero(b)) {
+		printf("division by zero, value returned is incorrect\n");
+		return c;
+	}
+
+	bInit(&c, "0", 0);
+
+	if (isZero(a)) {
+		return c;
+	}
+
+	int compare = comp(a, b);
+
+	if (compare == 0) {
+		*(c.whole.array) = 1;
+		return c;
+	} else if (compare > 1) {
+
+	}
 
 	return c;
 }
