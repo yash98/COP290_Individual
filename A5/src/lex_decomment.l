@@ -1,6 +1,6 @@
 %{
 
-#include <decomment.h>
+#include "decomment.h"
 
 %}
 
@@ -11,7 +11,7 @@
 "\""	return double_qoute;
 "\'"	return single_qoute;
 
-[\n]	return nextline;
-^[\" | \' | "/*" | "*/"]		return rest;
+"\n"	return nextline;
+[a-zA-Z0-9]		return rest;
 
 %%

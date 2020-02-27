@@ -5,6 +5,27 @@
     "version": "0.2.0",
     "configurations": [
     {
+        "name": "decomment",
+        "type": "cppdbg",
+        "request": "launch",
+        "program": "${workspaceFolder}/A5/exe/decomment",
+	"args": [],
+        "stopAtEntry": false,
+        "cwd": "${workspaceFolder}/A5/",
+        "environment": [],
+        "externalConsole": false,
+        "MIMode": "gdb",
+        "setupCommands": [
+            {
+                "description": "Enable pretty-printing for gdb",
+                "text": "-enable-pretty-printing",
+                "ignoreFailures": false
+            }
+        ],
+        "preLaunchTask": "gcc build decomment",
+        "miDebuggerPath": "/usr/bin/gdb"
+    },
+    {
         "name": "bignum",
         "type": "cppdbg",
         "request": "launch",

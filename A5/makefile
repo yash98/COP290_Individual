@@ -1,20 +1,22 @@
 .phony: all dir clean test
 
-all: src/decomment.l
-	make dir
+debug = -g
+
+all:
+	make dir && \
 	make exe/decomment
 
-exe/decomment: obj/decomment.yy.o obj/decomment.o
-	cc $^ -o $@
+exe/decomment: obj/lex_decomment.yy.o obj/decomment.o
+	cc $(debug) $^ -o $@ -lfl
 
 obj/decomment.o: src/decomment.c
-	cc -c $^ -o $@ -I src
+	cc $(debug) -c $^ -o $@ -I src
 
-obj/decomment.yy.o: obj/decomment.yy.c
-	cc -c $^ -I src -o $@ 
+obj/lex_decomment.yy.o: obj/lex_decomment.yy.c
+	cc $(debug) -c $^ -I src -o $@ 
 
-obj/decomment.yy.c: src/decomment.l
-	lex -o $@ -I src $^
+obj/lex_decomment.yy.c: src/lex_decomment.l
+	lex -o $@ $^ 
 
 dir:
 	mkdir -p exe obj

@@ -2,6 +2,15 @@
 	"tasks": [
 		{
 			"type": "shell",
+			"label": "gcc build decomment",
+			"command": "make",
+			"args": [],
+			"options": {
+				"cwd": "${workspaceFolder}/A5"
+			}
+		}, 
+		{
+			"type": "shell",
 			"label": "gcc build bignum",
 			"command": "make",
 			"args": [],
