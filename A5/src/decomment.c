@@ -17,20 +17,26 @@ int main(void)
 				if (!(dqo || sqo)) {
 					co = 1;
 					fprintf(stdout, " ");
-				} else fprintf(stdout, yytext);
+				} else fprintf(stdout, "%s\n", yytext);
+				break;
 			case comment_end:
-				if (!(dqo || sqo)) co = 0;
-				else fprintf(stdout, yytext);
+				if (!(dqo || sqo || !co)) co = 0;
+				else fprintf(stdout, "%s\n", yytext);
+				break;
 			case double_qoute:
 				if (!(co || sqo)) dqo = !(dqo);
-				fprintf(stdout, yytext);
+				fprintf(stdout, "%s\n", yytext);
+				break;
 			case single_qoute:
 				if (!(co || dqo)) sqo = !(sqo);
-				fprintf(stdout, yytext);
+				fprintf(stdout, "%s\n", yytext);
+				break;
 			case nextline:
-				fprintf(stdout, yytext);
+				fprintf(stdout, "%s\n", yytext);
+				break;
 			case rest:
-				if (!co) fprintf(stdout, yytext);
+				if (!co) fprintf(stdout, "%s\n", yytext);
+				break;
 			default:
 				fprintf(stderr, "unknown string\n");
 				return exit_failure;
