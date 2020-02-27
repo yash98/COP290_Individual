@@ -7,7 +7,7 @@ extern char* yytext;
 
 int main(void) 
 {
-	int token, dqo = 0, sqo = 0, co = 0;
+	int token, dqo = 0, sqo = 0, co = 0, con = -1;
 	
 	token = yylex();
 
@@ -16,6 +16,7 @@ int main(void)
 			case comment_start:
 				if (!(dqo || sqo)) {
 					co = 1;
+					con = yylineno;
 					fprintf(stdout, " ");
 				} else fprintf(stdout, "%s", yytext);
 				break;
@@ -46,6 +47,11 @@ int main(void)
 
 		// fflush(stdout);
 		token = yylex();
+	}
+
+	if (co) {
+		fprintf(stderr, "Error: line %d: unterminated comment\n", con);
+		return exit_failure;
 	}
 
 	return exit_success;
