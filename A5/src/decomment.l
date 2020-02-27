@@ -11,7 +11,7 @@
 "\""	return double_qoute;
 "\'"	return single_qoute;
 
-[ ]		return space;
-.		return rest;
+[\n]	return nextline;
+^[\" | \' | "/*" | "*/"]		return rest;
 
 %%
