@@ -19,11 +19,13 @@ The second of those jobs — the de-comment job — is more substantial than you
 
 - String and character literal boundaries. The preprocessor must not consider the character sequence (`/*...*/`) to be a comment if it occurs inside a string literal (`"..."`) or character literal (`'...'`).
 
-**Your task is to compose a C program named decomment that performs a subset of the de-comment job of the C preprocessor, as defined below. The operative part of the code should be done using lex and the driver code (decomment ) should invoke yylex() as discussed in class.**
+**Your task is to compose a C program named decomment that performs a subset of the de-comment job of the C preprocessor, as defined below. The operative part of the code should be done using lex and the driver code (decomment) should invoke yylex() as discussed in class.**
 
 Your program must be a Linux filter. A filter is a program that reads characters from the standard input stream, and writes characters to the standard output stream and possibly to the standard error stream. Specifically, your program must (1) read text, presumably a C program, from the standard input stream, (2) write that same text to the standard output stream with each comment removed, as prescribed below, and (3) write error and warning messages as appropriate to the standard error stream. A typical execution of your program from the shell might look like this:
 
+```sh
 ./decomment < somefile.c > somefileWithoutComments.c 2> errorsAndWarnings
+```
 
  The following bullet points represent the specs of your program.
 
@@ -79,6 +81,6 @@ Conversion of Postfix expression directly to Prefix without going through the pr
 
 Example:
 
-                  Input :  Postfix : ABC/-AK/L-*
+Input :  Postfix : ABC/-AK/L-*
 
-                  Output : Prefix :  *-A/BC-/AKL
+Output : Prefix :  *-A/BC-/AKL
