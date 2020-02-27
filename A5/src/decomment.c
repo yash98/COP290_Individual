@@ -41,7 +41,7 @@ int main(void)
 				}
 				break;
 			default:
-				fprintf(stderr, "unknown string\n");
+				fprintf(stderr, "unknown string: %s\n", yytext);
 				return exit_failure;
 		}
 
