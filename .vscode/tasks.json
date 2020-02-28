@@ -2,11 +2,20 @@
 	"tasks": [
 		{
 			"type": "shell",
+			"label": "gcc build conversion",
+			"command": "make",
+			"args": [],
+			"options": {
+				"cwd": "${workspaceFolder}/A5/q2"
+			}
+		}, 
+		{
+			"type": "shell",
 			"label": "gcc build decomment",
 			"command": "make",
 			"args": [],
 			"options": {
-				"cwd": "${workspaceFolder}/A5"
+				"cwd": "${workspaceFolder}/A5/q1"
 			}
 		}, 
 		{

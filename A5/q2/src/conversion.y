@@ -1,23 +1,35 @@
 %{
+#include "y.tab.h"
 #include <stdio.h>
 #include <malloc.h>
 #include <string.h>
 
-typedef struct retS{
-	int num;
-	char * str;
-} ret;
+void yyerror (const char *s);
+int yylex();
 
-void stringify(ret expr, ret val);
-void operator(ret expr, ret left, ret left, char o);
+// %code requires {struct ret {
+// 		int num;
+// 		char * str;
+// 		char c;
+// 	};
+// }
+
+// typedef struct retS {
+// 	int num;
+// 	char * str;
+// } ret;
+
+void stringify(char* expr, int val);
+void operator(char* expr, char* right, char* left, char o);
 
 int place = 0;
 
 %}
 
-%union{char oper; ret r;}
+// %union{char oper; struct {int num; char * str;} r; int n;}
+%union{char* r; int n; char oper;}
 %start line 
-%token <r> number
+%token <n> number
 %type <r> exp line
 %token <oper> op
 
@@ -37,40 +49,44 @@ int main() {
 	return 0;
 }
 
-void stringify(ret expr, ret val) {
-	expr.num = val.num;
-	expr.str = malloc(11*sizeof(char));
-	sprintf(expr.str, "%d\0", expr.num);
+void stringify(char * expr, int val) {
+	// expr.num = val;
+	expr = malloc(11*sizeof(char));
+	sprintf(expr, "%d\0", val);
 }
 
-void operator(ret expr, ret left, ret left, char o) {
-	expr.str = malloc((1+1+strlen(left.str)+1+strlen(right.str)+1)*sizeof(char));
-	switch(o) {
-		case '+':
-			expr.num = right.num + left.num;
-			break;
-		case '-':
-			expr.num = right.num + left.num;
-			break;
-		case '*':
-			expr.num = right.num + left.num;
-			break;
-		case '/':
-			expr.num = right.num + left.num;
-			break;
-		default:
-			printf("invalid_input\n");
-			exit(0);
-	}
+void operator(char * expr, char * right, char * left, char o) {
+	expr = malloc((1+1+strlen(left)+1+strlen(right)+1)*sizeof(char));
+	// switch(o) {
+	// 	case '+':
+	// 		expr.num = right.num + left.num;
+	// 		break;
+	// 	case '-':
+	// 		expr.num = right.num + left.num;
+	// 		break;
+	// 	case '*':
+	// 		expr.num = right.num + left.num;
+	// 		break;
+	// 	case '/':
+	// 		expr.num = right.num + left.num;
+	// 		break;
+	// 	default:
+	// 		printf("invalid_input\n");
+	// }
 	char * w;
-	*w = op;
+	w = expr;
+	*w = o;
 	w += 1;
 	*w = ' ';
 	w += 1;
-	strcpy(w, left.str);
-	w += strlen(left.str);
+	strcpy(w, left);
+	w += strlen(left);
 	*w = ' ';
-	strcpy(w, right.str);
-	free(left.str);
-	free(right.str);
+	strcpy(w, right);
+	free(left);
+	free(right);
 }
+
+void yyerror (char const *s) {
+   fprintf (stderr, "%s\n", s);
+ }

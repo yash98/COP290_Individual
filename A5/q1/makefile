@@ -4,9 +4,9 @@ debug = -g
 
 all:
 	make dir && \
-	make exe/decomment
+	make decomment
 
-exe/decomment: obj/lex_decomment.yy.o obj/decomment.o
+decomment: obj/lex_decomment.yy.o obj/decomment.o
 	cc $(debug) $^ -o $@ -lfl
 
 obj/decomment.o: src/decomment.c
@@ -19,8 +19,8 @@ obj/lex_decomment.yy.c: src/lex_decomment.l
 	lex -o $@ $^ 
 
 dir:
-	mkdir -p exe obj
+	mkdir -p obj
 
 clean:
-	rm -rf exe
+	rm -rf decomment
 	rm -rf obj
