@@ -84,3 +84,18 @@ Example:
 Input :  Postfix : ABC/-AK/L-*
 
 Output : Prefix :  *-A/BC-/AKL
+
+## Submission Instructions
+
+1. You should submit the lex and yacc files for both the questions, along with Makefiles to build the executable for each question. Put the corresponding files of each question in separate folders named q1 and q2. The make command in corresponding folders should generate executable decomment inside q1 and conversion inside q2. 
+
+2. decomment should run as per the guidelines posted on moodle i.e. ./decomment < somefile.c > somefileWithoutComments.c 2> errorsAndWarnings
+
+3. ./conversion should take the postfix expressions from postfix.txt input file and output the prefix expression as well as the postfix evaluated result separated by space into the result.txt file.For ex-
+           Postfix exp in each line in postfix.txt: 5 4 2 / - 6 2 / 8 - *
+
+           Result in each line in result.txt: * - 5 / 4 2 - / 6 2 8<space>-15
+
+4. Error in part 2 print "invalid_input"       
+
+Put both q1 and q2 folders into a folder named <YourEntryno>_<Yourfullname> and submit a zip file of this folder with the same naming convention. This convention should be followed strictly as we plan to run automated scripts for evaluation.
