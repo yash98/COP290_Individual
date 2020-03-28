@@ -20,3 +20,8 @@ Similar as before just parallel instances of queues
 ### Single Queue modifies state of environment
 
 State contains other structures which is modified as events occur. Save relevant info in for adding customers and breaks for tellers
+
+### Properties of environment and simulator
+
+1. Time of event is relative to another event exact time is unknown is some cases
+2. Unknown time event but order needs to be maintained

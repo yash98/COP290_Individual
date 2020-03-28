@@ -3,10 +3,31 @@
 
 #include "event.h"
 
-typedef struct eventQueueS
+/*
+Heap based priority queue
+Re-entry allowed and it gets sorted acc. to priority too
+*/
+typedef struct heapQueueS
 {
-	event * arr;
-} eventQueue;
+	void * arr;
+	int (* comp)(void *, void *);
+	time doneTill;
+} heapQueue;
 
+/*
+Queue Linked List based
+Re-entry allowed (FIFO, no priority)
+*/
+typedef struct nodeS
+{
+	void * element;
+	node * next;
+} node;
+
+typedef struct fifoQueueS
+{
+	node * head;
+	int length;
+} fifoQueue;
 
 #endif
