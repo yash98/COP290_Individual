@@ -25,3 +25,7 @@ State contains other structures which is modified as events occur. Save relevant
 
 1. Time of event is relative to another event exact time is unknown is some cases
 2. Unknown time event but order needs to be maintained
+
+### Current Queue Simulator Structure
+
+1. only fifoQueue is being currently used, thinking of appropriate events to model simulation completely
