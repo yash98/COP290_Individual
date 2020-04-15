@@ -1,10 +1,17 @@
 #ifndef ENVIRONMENT_H
 #define ENVIRONMENT_H
 
-typedef struct bank
+#include "queue.h"
+#include "actor.h"
+
+typedef struct environmentS
 {
-	int queues;
-};
+	int numQueues;
+	fifoQueue queues;
+	int cutomerCount;
+	teller * tellers;
+	customer * customers;
+} environment;
 
 
 #endif

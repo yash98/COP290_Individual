@@ -4,19 +4,21 @@
 #include "def.h"
 #include "queue.h"
 
-typedef struct teller
+typedef struct tellerS
 {
 	int tellerId;
-	fifoQueue history;
-};
+	time idleTime;
+	time serviceTime;
+} teller;
 
-typedef struct customer
+typedef struct customerS
 {
 	int customerIndex;
 	int lineIndex;
 	time enterTime;
 	time exitTime;
+	time waitTime;
 	time serviceTime;
-};
+} customer;
 
 #endif

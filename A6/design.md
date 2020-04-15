@@ -29,3 +29,9 @@ State contains other structures which is modified as events occur. Save relevant
 ### Current Queue Simulator Structure
 
 1. only fifoQueue is being currently used, thinking of appropriate events to model simulation completely
+
+## References
+
+1. Cyclic dependencies
+   1. [Explanation](https://medium.com/@prashanthhn2509/circular-dependency-forward-declaration-pragma-once-c-f1315b4b6cd7)
+   2. [Solution](https://en.wikipedia.org/wiki/Pragma_once)

@@ -3,9 +3,6 @@
 
 #include "event.h"
 
-#include <stddef.h>
-#include <malloc.h>
-
 /*
 Heap based priority queue
 Re-entry allowed and it gets sorted acc. to priority too
@@ -27,8 +24,8 @@ Primary purpose maintaining order amongst non timed events
 typedef struct nodeS
 {
 	event * eve;
-	node * prev;
-	node * next;
+	struct nodeS * prev;
+	struct nodeS * next;
 } node;
 
 node * createNode(event * e);

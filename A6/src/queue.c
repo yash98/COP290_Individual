@@ -1,5 +1,8 @@
 #include "queue.h"
 
+#include <stddef.h>
+#include <malloc.h>
+
 node * createNode(event * e) {
 	node * n = malloc(sizeof(node));
 	n->eve = e;
