@@ -9,6 +9,7 @@ typedef struct tellerS
 	int tellerId;
 	time idleTime;
 	time serviceTime;
+	time breakDuration;
 } teller;
 
 typedef struct customerS

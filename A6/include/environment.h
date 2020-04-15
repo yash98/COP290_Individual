@@ -6,10 +6,16 @@
 
 typedef struct environmentS
 {
+	time clock;
+
 	int numQueues;
-	fifoQueue queues;
-	int cutomerCount;
 	teller * tellers;
+	fifoQueue * startQueues;
+	fifoQueue * endQueues;
+	int * queueBusyTime; 
+	time avgTellerServeTime;
+
+	int cutomerCount;
 	customer * customers;
 } environment;
 
