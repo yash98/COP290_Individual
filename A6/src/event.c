@@ -8,7 +8,7 @@
 
 extern environment mainEnv;
 
-createEvent(time (* eveFunction)(char **), int argC, char ** argV) {
+event * createEvent(time (* eveFunction)(char **), int argC, char ** argV) {
 	event * returnEvent = malloc(sizeof(event));
 	returnEvent->eventFunction = eveFunction;
 	returnEvent->argCount = argC;
@@ -40,7 +40,7 @@ time serveCustomer(char ** argV) {
 	char ** createdArgV = malloc(1*sizeof(char*));
 	*createdArgV = malloc(7*sizeof(char));
 	strcpy(*(argV), *createdArgV);
-	pushFQueue(relevantEndQueue, createEvent(&searchCustomer, 1, createdArgV));
+	pushFQueue(relevantEndQueue, createNode(createEvent(&searchCustomer, 1, createdArgV)));
 
 	return mainEnv.avgTellerServeTime;
 }
@@ -69,7 +69,7 @@ time searchCustomer(char ** argV) {
 		fifoQueue * iterQueue = mainEnv.startQueues + i;
 		if (i != tellerId) {
 			if (relevantQueue->length > 0) {
-				qPtr = relevantQueue;
+				*qPtr = relevantQueue;
 				qPtr += 1;
 				numSelectedQueues += 1;
 			}
@@ -87,7 +87,7 @@ time searchCustomer(char ** argV) {
 	// taking job from another queue and adding for this teller
 	free(*(takingJob->eve->argVector));
 	char * copyTellerId = malloc(7 * sizeof(char));
-	strcpy(copyTellerId, tellerId);
+	strcpy(copyTellerId, *argV);
 	*(takingJob->eve->argVector) = copyTellerId;
 	pushFQueue(relevantQueue, takingJob);
 

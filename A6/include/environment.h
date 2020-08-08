@@ -19,5 +19,6 @@ typedef struct environmentS
 	customer * customers;
 } environment;
 
+void createEnv(environment * e, int numberQueues, int avgTellerServTime, int numCustomer);
 
 #endif

@@ -14,12 +14,15 @@ typedef struct tellerS
 
 typedef struct customerS
 {
-	int customerIndex;
+	int customerId;
 	int lineIndex;
 	time enterTime;
 	time exitTime;
 	time waitTime;
 	time serviceTime;
 } customer;
+
+void createTeller(teller * t, int tId);
+void createCustomer(customer * c, int cId);
 
 #endif

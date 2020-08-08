@@ -14,10 +14,10 @@ typedef struct eventS
 	char ** argVector;
 } event;
 
-event * createEvent(time (* eventFunction)(char **), int argC, char ** argV);
+event * createEvent(time (* eveFunction)(char **), int argC, char ** argV);
 
 time serveCustomer(char** argV);
-time searchCustomer(char ** argV);
+time searchCustomer(char** argV);
 
 typedef struct timedEventS
 {
