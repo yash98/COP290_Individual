@@ -15,10 +15,12 @@ typedef struct environmentS
 	int * queueBusyTime; 
 	time avgTellerServeTime;
 
-	int cutomerCount;
+	int customerCount;
 	customer * customers;
+
+	time totalTime;
 } environment;
 
-void createEnv(environment * e, int numberQueues, int avgTellerServTime, int numCustomer);
+void createEnv(environment * e, int numberQueues, int avgTellerServTime, int numCustomer, time totalTime);
 
 #endif

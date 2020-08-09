@@ -23,6 +23,6 @@ typedef struct customerS
 } customer;
 
 void createTeller(teller * t, int tId);
-void createCustomer(customer * c, int cId);
+void createCustomer(customer * c, int cId, time enterTime);
 
 #endif
