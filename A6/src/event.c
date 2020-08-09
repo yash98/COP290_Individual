@@ -33,7 +33,7 @@ time serveCustomer(char ** argV) {
 
 	relevantTeller->serviceTime += mainEnv->avgTellerServeTime;
 	relevantCustomer->serviceTime = mainEnv->avgTellerServeTime;
-	relevantCustomer->exitTime = mainEnv->clock + mainEnv->avgTellerServeTime;
+	relevantCustomer->exitTime = mainEnv->clock + (2 * mainEnv->avgTellerServeTime * rand()) / ((time) RAND_MAX);
 	
 	// add searching task to endQueue
 	fifoQueue * relevantEndQueue = mainEnv->endQueues + tellerId;
