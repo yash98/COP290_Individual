@@ -13,7 +13,7 @@ typedef struct heapQueueS
 {
 	timedEvent * tEve;
 	int (* comp)(void *, void *);
-	time doneTill;
+	simTime doneTill;
 } heapQueue;
 
 /*

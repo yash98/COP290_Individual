@@ -7,22 +7,22 @@
 typedef struct tellerS
 {
 	int tellerId;
-	time idleTime;
-	time serviceTime;
-	time breakDuration;
+	simTime idleTime;
+	simTime serviceTime;
+	simTime breakDuration;
 } teller;
 
 typedef struct customerS
 {
 	int customerId;
 	int lineIndex;
-	time enterTime;
-	time exitTime;
-	time waitTime;
-	time serviceTime;
+	simTime enterTime;
+	simTime exitTime;
+	simTime waitTime;
+	simTime serviceTime;
 } customer;
 
 void createTeller(teller * t, int tId);
-void createCustomer(customer * c, int cId, time enterTime);
+void createCustomer(customer * c, int cId, simTime enterTime);
 
 #endif

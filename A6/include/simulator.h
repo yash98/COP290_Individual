@@ -3,8 +3,8 @@
 
 #include "def.h"
 
-time multiQueueSystem();
+simTime multiQueueSystem();
 
-time singleQueueSystem();
+simTime singleQueueSystem();
 
 #endif

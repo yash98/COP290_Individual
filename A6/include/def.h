@@ -6,6 +6,6 @@
 
 
 // time in minutes
-typedef double time;
+typedef double simTime;
 
 #endif

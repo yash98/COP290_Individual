@@ -3,7 +3,7 @@
 #include <malloc.h>
 #include <stdlib.h>
 
-void createEnv(environment * e, int numberQueues, int avgTellerServTime, int numCustomer, time totalTime) {
+void createEnv(environment * e, int numberQueues, int avgTellerServTime, int numCustomer, simTime totalTime) {
 	e->clock = 0.0;
 
 	e->numQueues = numberQueues;
@@ -27,16 +27,15 @@ void createEnv(environment * e, int numberQueues, int avgTellerServTime, int num
 	e->avgTellerServeTime = avgTellerServTime;
 
 	// Uniform Distribution arrivals
-	time arrivals[numCustomer];
+	simTime arrivals[numCustomer];
 
 	for (int i = 0; i < numCustomer; i++) {
-		arrivals[i] = totalTime * rand() / ((time) RAND_MAX);
+		arrivals[i] = totalTime * rand() / ((simTime) RAND_MAX);
 	}
 
 	// Selection sort array
 	for (int i = 0; i < numCustomer; i++) {
-		//  Arrival times are positive so default value is always smaller
-		int min = -1.0;
+		simTime min = 1.79769e+308;
 		int minIndex = i;
 		for (int j = i; j < numCustomer; j++) {
 			if (arrivals[j] < min) {

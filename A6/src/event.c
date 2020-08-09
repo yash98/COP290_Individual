@@ -8,7 +8,7 @@
 
 extern environment * mainEnv;
 
-event * createEvent(time (* eveFunction)(char **), int argC, char ** argV) {
+event * createEvent(simTime (* eveFunction)(char **), int argC, char ** argV) {
 	event * returnEvent = malloc(sizeof(event));
 	returnEvent->eventFunction = eveFunction;
 	returnEvent->argCount = argC;
@@ -21,7 +21,7 @@ event * createEvent(time (* eveFunction)(char **), int argC, char ** argV) {
 1. Teller Id
 2. Customer Id
 */
-time serveCustomer(char ** argV) {
+simTime serveCustomer(char ** argV) {
 	char ** argVPtr = argV;
 	int tellerId = atoi(*argVPtr);
 	argVPtr += 1;
@@ -31,9 +31,11 @@ time serveCustomer(char ** argV) {
 	teller * relevantTeller = mainEnv->tellers + tellerId;
 	customer * relevantCustomer = mainEnv->customers + customerId;
 
-	relevantTeller->serviceTime += mainEnv->avgTellerServeTime;
-	relevantCustomer->serviceTime = mainEnv->avgTellerServeTime;
-	relevantCustomer->exitTime = mainEnv->clock + (2 * mainEnv->avgTellerServeTime * rand()) / ((time) RAND_MAX);
+	simTime timeUtilized = (2 * mainEnv->avgTellerServeTime * rand()) / ((simTime) RAND_MAX);
+
+	relevantTeller->serviceTime += timeUtilized;
+	relevantCustomer->serviceTime = timeUtilized;
+	relevantCustomer->exitTime = mainEnv->clock + timeUtilized;
 	
 	// add searching task to endQueue
 	fifoQueue * relevantEndQueue = mainEnv->endQueues + tellerId;
@@ -42,13 +44,13 @@ time serveCustomer(char ** argV) {
 	strcpy(*(argV), *createdArgV);
 	pushFQueue(relevantEndQueue, createNode(createEvent(&searchCustomer, 1, createdArgV)));
 
-	return mainEnv->avgTellerServeTime;
+	return timeUtilized;
 }
 
 /*
 1. Teller Id
 */
-time searchCustomer(char ** argV) {
+simTime searchCustomer(char ** argV) {
 	char ** argVPtr = argV;
 	int tellerId = atoi(*argVPtr);
 
