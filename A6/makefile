@@ -35,5 +35,5 @@ dir:
 
 .PHONY: clean
 clean:
-	rm -rf obj bin
+	rm -rf obj bin qSim
 

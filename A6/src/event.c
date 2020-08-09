@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 
-extern environment mainEnv;
+extern environment * mainEnv;
 
 event * createEvent(time (* eveFunction)(char **), int argC, char ** argV) {
 	event * returnEvent = malloc(sizeof(event));
@@ -27,22 +27,22 @@ time serveCustomer(char ** argV) {
 	argVPtr += 1;
 	int customerId = atoi(*argVPtr);
 
-	fifoQueue * relevantQueue = mainEnv.startQueues + tellerId;
-	teller * relevantTeller = mainEnv.tellers + tellerId;
-	customer * relevantCustomer = mainEnv.customers + customerId;
+	fifoQueue * relevantQueue = mainEnv->startQueues + tellerId;
+	teller * relevantTeller = mainEnv->tellers + tellerId;
+	customer * relevantCustomer = mainEnv->customers + customerId;
 
-	relevantTeller->serviceTime += mainEnv.avgTellerServeTime;
-	relevantCustomer->serviceTime = mainEnv.avgTellerServeTime;
-	relevantCustomer->exitTime = mainEnv.clock + mainEnv.avgTellerServeTime;
+	relevantTeller->serviceTime += mainEnv->avgTellerServeTime;
+	relevantCustomer->serviceTime = mainEnv->avgTellerServeTime;
+	relevantCustomer->exitTime = mainEnv->clock + mainEnv->avgTellerServeTime;
 	
 	// add searching task to endQueue
-	fifoQueue * relevantEndQueue = mainEnv.endQueues + tellerId;
+	fifoQueue * relevantEndQueue = mainEnv->endQueues + tellerId;
 	char ** createdArgV = malloc(1*sizeof(char*));
 	*createdArgV = malloc(7*sizeof(char));
 	strcpy(*(argV), *createdArgV);
 	pushFQueue(relevantEndQueue, createNode(createEvent(&searchCustomer, 1, createdArgV)));
 
-	return mainEnv.avgTellerServeTime;
+	return mainEnv->avgTellerServeTime;
 }
 
 /*
@@ -52,8 +52,8 @@ time searchCustomer(char ** argV) {
 	char ** argVPtr = argV;
 	int tellerId = atoi(*argVPtr);
 
-	fifoQueue * relevantQueue = mainEnv.startQueues + tellerId;
-	teller * relevantTeller = mainEnv.tellers + tellerId;
+	fifoQueue * relevantQueue = mainEnv->startQueues + tellerId;
+	teller * relevantTeller = mainEnv->tellers + tellerId;
 
 	if (relevantQueue->length > 0) {
 		return 0.0;
@@ -61,12 +61,12 @@ time searchCustomer(char ** argV) {
 
 	// select non empty queues
 	int numSelectedQueues = 0;
-	fifoQueue ** selectedQueues = malloc(mainEnv.numQueues * sizeof(fifoQueue *));
+	fifoQueue ** selectedQueues = malloc(mainEnv->numQueues * sizeof(fifoQueue *));
 	fifoQueue ** qPtr = selectedQueues;
 
 	// randomly selecting queue from tellers
-	for (int i=0; i < mainEnv.numQueues; i++) {
-		fifoQueue * iterQueue = mainEnv.startQueues + i;
+	for (int i=0; i < mainEnv->numQueues; i++) {
+		fifoQueue * iterQueue = mainEnv->startQueues + i;
 		if (i != tellerId) {
 			if (relevantQueue->length > 0) {
 				*qPtr = relevantQueue;
@@ -81,7 +81,7 @@ time searchCustomer(char ** argV) {
 	}
 		
 	int selection = rand()/numSelectedQueues;
-	fifoQueue * selectedQueue = mainEnv.startQueues + selection;
+	fifoQueue * selectedQueue = mainEnv->startQueues + selection;
 	node * takingJob = popFQueue(selectedQueue);
 
 	// taking job from another queue and adding for this teller
