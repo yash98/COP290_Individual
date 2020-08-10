@@ -9,7 +9,7 @@ typedef struct environmentS
 	simTime clock;
 
 	int numQueues;
-	simTime avgTellerServeTime;
+	simTime avgTellerServiceTime;
 	teller * tellers;
 
 	fifoQueue * startQueues;
@@ -22,6 +22,6 @@ typedef struct environmentS
 	simTime totalTime;
 } environment;
 
-void createEnv(environment * e, int numberQueues, int avgTellerServTime, int numCustomer, simTime totalTime);
+void createEnv(environment * e, int numberQueues, int avgTellerServiceTime, int numCustomer, simTime totalTime);
 
 #endif

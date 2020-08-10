@@ -15,9 +15,10 @@ simTime multiQueueSystem() {
 
 	simTime resumeTime = 0.0;
 	int takingMoreCustomer = 1;
+	int customersPresent = 0;
 	enum mode {customerMode, tellerMode} actionMode = tellerMode;
 
-	while (lastCustomer->exitTime < 0) {
+	while ((mainEnv->clock < mainEnv->totalTime) || customersPresent) {
 		if (actionMode == customerMode) {
 			mainEnv->clock = latestCustomer->enterTime;
 			// Find the shortest queues
@@ -48,6 +49,8 @@ simTime multiQueueSystem() {
 			latestCustomer->lineIndex = chosenQueue;
 
 			debugPrintf("%lf: customer %d entered queue %d\n", mainEnv->clock, latestCustomer->customerId, chosenQueue);
+
+			customersPresent = 1;
 			
 			if (latestCustomer == lastCustomer) {
 				takingMoreCustomer = 0;
@@ -60,39 +63,37 @@ simTime multiQueueSystem() {
 				if (doubleEquality(*(mainEnv->queueBusyTime+i), resumeTime)) {
 					// End Queue
 					simTime busyFor; 
-					if ((mainEnv->endQueues+i)->length != 0) {
-						// Currently all End Queue have 0 time utilized 
-						node * poppedNode = popFQueue(mainEnv->endQueues+i);
-						event * eqEve = poppedNode->eve;
-						busyFor = (eqEve->eventFunction) (eqEve->argVector);
-						freeMemNode(poppedNode);
+					// Currently all End Queue have 0 time utilized 
+					node * poppedEqNode = popFQueue(mainEnv->endQueues+i);
+					event * eqEve = poppedEqNode->eve;
+					busyFor = (eqEve->eventFunction) (eqEve->argVector);
+					freeMemNode(poppedEqNode);
 
-						if (busyFor > 0.0) {
-							// Teller is taking a break
-							*(mainEnv->queueBusyTime+i) = mainEnv->clock + busyFor;
-							printf("Queue %d busy till %lf\n", i, *(mainEnv->queueBusyTime+i));
-							continue;
-						}
+					if (busyFor > 0.0) {
+						// Teller is taking a break
+						*(mainEnv->queueBusyTime+i) = mainEnv->clock + busyFor;
+						continue;
 					}
 					
 					// Start Queue
 					busyFor = 0.0;
-					while (doubleEquality(busyFor, 0.0)) {
-						node * poppedNode = popFQueue(mainEnv->startQueues+i);
-						event * sqEve = poppedNode->eve;
-						busyFor = (sqEve->eventFunction) (sqEve->argVector);
-						*(mainEnv->queueBusyTime+i) = mainEnv->clock + busyFor;
-						printf("Queue %d busy till %lf\n", i, *(mainEnv->queueBusyTime+i));
-						freeMemNode(poppedNode);
-					}
+					node * poppedSqNode = popFQueue(mainEnv->startQueues+i);
+					event * sqEve = poppedSqNode->eve;
+					busyFor = (sqEve->eventFunction) (sqEve->argVector);
+					*(mainEnv->queueBusyTime+i) = mainEnv->clock + busyFor;
+					freeMemNode(poppedSqNode);
 				}
 			}
 
 			// Select next event for teller
-			resumeTime = 1.79769e+308; 
+			resumeTime = 1.79769e+308;
+			customersPresent = 0;
 			for (int i = 0; i < mainEnv->numQueues; i++) {
 				if (*(mainEnv->queueBusyTime+i) < resumeTime) {
 					resumeTime = *(mainEnv->queueBusyTime+i);
+				}
+				if ((mainEnv->startQueues+i)->length > 0) {
+					customersPresent = 1;
 				}
 			}
 		}
@@ -110,10 +111,10 @@ int main(int argc, char * argv[]) {
 	int numCustomers = atoi(argv[1]);
 	int numTellers = atoi(argv[2]);
 	simTime totalTime = atof(argv[3]);
-	simTime avgTellerServeTime = atof(argv[3]);
+	simTime avgTellerServiceTime = atof(argv[4]);
 
 	environment * multiQueueEnv = (environment *) malloc(sizeof(environment));
-	createEnv(multiQueueEnv, numTellers, avgTellerServeTime, numCustomers, totalTime);
+	createEnv(multiQueueEnv, numTellers, avgTellerServiceTime, numCustomers, totalTime);
 	mainEnv = multiQueueEnv;
 	
 	debugPrintf("Initialized of multiqueue system\n");

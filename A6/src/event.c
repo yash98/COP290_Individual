@@ -39,7 +39,7 @@ simTime serveCustomer(char ** argV) {
 	teller * relevantTeller = mainEnv->tellers + tellerId;
 	customer * relevantCustomer = mainEnv->customers + customerId;
 
-	simTime timeUtilized = (2 * mainEnv->avgTellerServeTime * rand()) / ((simTime) RAND_MAX);
+	simTime timeUtilized = (2 * mainEnv->avgTellerServiceTime * rand()) / ((simTime) RAND_MAX);
 
 	relevantTeller->serviceTime += timeUtilized;
 	relevantCustomer->serviceTime = timeUtilized;
@@ -80,13 +80,14 @@ simTime searchCustomer(char ** argV) {
 	for (int i=0; i < mainEnv->numQueues; i++) {
 		fifoQueue * iterQueue = mainEnv->startQueues + i;
 		if (i != tellerId) {
-			if (relevantQueue->length > 0) {
-				*qPtr = relevantQueue;
+			if (iterQueue->length > 0) {
+				*qPtr = iterQueue;
 				qPtr += 1;
 				numSelectedQueues += 1;
 			}
 		}
 	}
+
 	if (numSelectedQueues == 0) {		
 		free(selectedQueues);
 		// Teller taking break
@@ -102,8 +103,8 @@ simTime searchCustomer(char ** argV) {
 		return relevantTeller->breakDuration;
 	}
 		
-	int selection = rand()/numSelectedQueues;
-	fifoQueue * selectedQueue = mainEnv->startQueues + selection;
+	int selection = rand()%numSelectedQueues;
+	fifoQueue * selectedQueue = *(selectedQueues + selection);
 	node * takingJob = popFQueue(selectedQueue);
 
 	// taking job from another queue and adding for this teller

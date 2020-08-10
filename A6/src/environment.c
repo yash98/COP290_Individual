@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-void createEnv(environment * e, int numberQueues, int avgTellerServTime, int numCustomer, simTime totalTime) {
+void createEnv(environment * e, int numberQueues, int avgTellerServiceTime, int numCustomer, simTime totalTime) {
 	e->clock = 0.0;
 
 	e->numQueues = numberQueues;
@@ -28,7 +28,7 @@ void createEnv(environment * e, int numberQueues, int avgTellerServTime, int num
 		*(e->queueBusyTime + i) = 0.0;
 	}
 
-	e->avgTellerServeTime = avgTellerServTime;
+	e->avgTellerServiceTime = avgTellerServiceTime;
 
 	// Uniform Distribution arrivals
 	simTime arrivals[numCustomer];
