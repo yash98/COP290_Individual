@@ -6,7 +6,7 @@
 #define BREAK_RANGE_START_SEC 1
 #define BREAK_RANGE_END_SEC 600
 
-#define DEBUG 1
+#define DEBUG 0
 
 int debugPrintf(const char * fmt, ...);
 
