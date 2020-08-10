@@ -42,7 +42,9 @@ simTime serveCustomer(char ** argV) {
 	simTime timeUtilized = (2 * mainEnv->avgTellerServiceTime * rand()) / ((simTime) RAND_MAX);
 
 	relevantTeller->serviceTime += timeUtilized;
+	relevantTeller->customersServed += 1;
 	relevantCustomer->serviceTime = timeUtilized;
+	relevantCustomer->waitTime = mainEnv->clock - relevantCustomer->enterTime;
 	relevantCustomer->exitTime = mainEnv->clock + timeUtilized;
 	
 	// add searching task to endQueue
@@ -92,6 +94,8 @@ simTime searchCustomer(char ** argV) {
 		free(selectedQueues);
 		// Teller taking break
 		debugPrintf("%lf: teller %d taking a break for %lf minutes\n", mainEnv->clock, tellerId, relevantTeller->breakDuration);
+		
+		relevantTeller->idleTime += relevantTeller->breakDuration;
 
 		// Add searching task that is done at returning
 		fifoQueue * relevantEndQueue = mainEnv->endQueues + tellerId;

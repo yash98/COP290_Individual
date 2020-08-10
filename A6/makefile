@@ -1,6 +1,8 @@
 #Compiler
 CXX = gcc
 
+LINK_FLAGS = -lm
+
 #Libraries common include file directory
 COMMON_INCLUDES = -Iinclude
 
@@ -16,7 +18,7 @@ all:
 
 .PHONY: allCompile
 allCompile: $(OBJ_FILES)
-	$(CXX) $^ -o qSim;
+	$(CXX) $(LINK_FLAGS) $^ -o qSim;
 
 .PHONY: debug
 debug:
@@ -25,7 +27,7 @@ debug:
 
 .PHONY: debugCompile
 debugCompile: $(DEBUG_FILES)
-	$(CXX) -g $^ -o qSimDebug
+	$(CXX) $(LINK_FLAGS) -g $^ -o qSimDebug
 
 obj/%.o: src/%.c
 	$(CXX) $(COMMON_INCLUDES) -c $^ -o $@

@@ -6,6 +6,7 @@ void createTeller(teller * t, int tId) {
 	t->tellerId = tId,
 	t->idleTime = 0.0;
 	t->serviceTime = 0.0;
+	t->customersServed = 0;
 	t->breakDuration =  ((rand()/((simTime) RAND_MAX))*(BREAK_RANGE_END_SEC - BREAK_RANGE_START_SEC) + BREAK_RANGE_START_SEC) / 60.0;
 }
 
