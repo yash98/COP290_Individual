@@ -13,7 +13,6 @@ int freeMemEvent(event * e) {
 		free(e->argVector+i);
 	}
 	free(e->eventFunction);
-	free(e->argCount);
 	free(e->argVector);
 	free(e);
 	return 1;
@@ -38,7 +37,7 @@ simTime serveCustomer(char ** argV) {
 	argVPtr += 1;
 	int customerId = atoi(*argVPtr);
 
-	debugPrintf("%lf: teller %s started serving customer %s\n", mainEnv->clock, tellerId, customerId);
+	debugPrintf("%lf: teller %d started serving customer %d\n", mainEnv->clock, tellerId, customerId);
 
 	fifoQueue * relevantQueue = mainEnv->startQueues + tellerId;
 	teller * relevantTeller = mainEnv->tellers + tellerId;
@@ -93,7 +92,7 @@ simTime searchCustomer(char ** argV) {
 	if (numSelectedQueues == 0) {		
 		free(selectedQueues);
 		// Teller taking break
-		debugPrintf("%lf: teller %s taking a break for %lf minutes", mainEnv->clock, tellerId, relevantTeller->breakDuration);
+		debugPrintf("%lf: teller %d taking a break for %lf minutes", mainEnv->clock, tellerId, relevantTeller->breakDuration);
 
 		// Add searching task that is done at returning
 		fifoQueue * relevantEndQueue = mainEnv->endQueues + tellerId;
@@ -110,7 +109,7 @@ simTime searchCustomer(char ** argV) {
 	node * takingJob = popFQueue(selectedQueue);
 
 	// taking job from another queue and adding for this teller
-	debugPrintf("%lf: teller %s took customer from queue %s", mainEnv->clock, tellerId, selection);
+	debugPrintf("%lf: teller %d took customer from queue %d", mainEnv->clock, tellerId, selection);
 	char * copyTellerId = malloc(7 * sizeof(char));
 	strcpy(copyTellerId, *argV);
 	*(takingJob->eve->argVector) = copyTellerId;

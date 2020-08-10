@@ -44,7 +44,7 @@ simTime multiQueueSystem() {
 
 			pushFQueue(mainEnv->startQueues+chosenQueue, createNode(createEvent(&serveCustomer, 2, createdArgV)));
 
-			debugPrintf("%lf: customer %s entered queue %s\n", mainEnv->clock, latestCustomer->customerId, chosenQueue);
+			debugPrintf("%lf: customer %d entered queue %d\n", mainEnv->clock, latestCustomer->customerId, chosenQueue);
 			
 			latestCustomer++;
 		} else {
@@ -105,7 +105,7 @@ int main(int argc, char * argv[]) {
 	createEnv(multiQueueEnv, numTellers, avgTellerServeTime, numCustomers, totalTime);
 	environment * mainEnv = multiQueueEnv;
 	
-	debugPrintf("Initialization of multiqueue system finished\n")
+	debugPrintf("Initialization of multiqueue system finished\n");
 	multiQueueSystem();
 
 	return 0;
