@@ -4,12 +4,36 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
+
+    {
+        "name": "DES",
+        "type": "cppdbg",
+        "request": "launch",
+        "program": "${workspaceFolder}/A6/qSimDebug",
+	    "args": ["100", "4", "60", "2.3"],
+        "stopAtEntry": false,
+        "cwd": "${workspaceFolder}/A6",
+        "environment": [],
+        "externalConsole": false,
+        "MIMode": "gdb",
+        "setupCommands": [
+            {
+                "description": "Enable pretty-printing for gdb",
+                "text": "-enable-pretty-printing",
+                "ignoreFailures": false
+            }
+        ],
+        "preLaunchTask": "gcc build DES",
+        "miDebuggerPath": "/usr/bin/gdb"
+    },
+
     {
         "name": "conversion",
         "type": "cppdbg",
         "request": "launch",
         "program": "${workspaceFolder}/A5/q2/conversion",
-	"args": [],
+	    "args": [],
         "stopAtEntry": true,
         "cwd": "${workspaceFolder}/A5/q2",
         "environment": [],
@@ -30,7 +54,7 @@
         "type": "cppdbg",
         "request": "launch",
         "program": "${workspaceFolder}/A5/q1/exe/decomment",
-	"args": [],
+	    "args": [],
         "stopAtEntry": false,
         "cwd": "${workspaceFolder}/A5/q1",
         "environment": [],

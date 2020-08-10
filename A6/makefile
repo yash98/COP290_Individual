@@ -7,6 +7,7 @@ COMMON_INCLUDES = -Iinclude
 # storing all .c and .o filenames before they are compiled
 SRC_FILES = $(wildcard src/*.c)
 OBJ_FILES = $(patsubst src/%.c, obj/%.o, $(SRC_FILES))
+DEBUG_FILES = $(patsubst src/%.c, debug/%.o, $(SRC_FILES))
 
 .PHONY: all
 all:
@@ -23,17 +24,20 @@ debug:
 	make debugCompile;
 
 .PHONY: debugCompile
-debugCompile: $(OBJ_FILES)
+debugCompile: $(DEBUG_FILES)
 	$(CXX) -g $^ -o qSimDebug
 
 obj/%.o: src/%.c
 	$(CXX) $(COMMON_INCLUDES) -c $^ -o $@
 
+debug/%.o: src/%.c
+	$(CXX) $(COMMON_INCLUDES) -g -c $^ -o $@
+
 .PHONY: dir
 dir:
-	mkdir -p obj bin
+	mkdir -p obj bin debug
 
 .PHONY: clean
 clean:
-	rm -rf obj bin qSim
+	rm -rf obj bin debug qSim qSimDebug
 

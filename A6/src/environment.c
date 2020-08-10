@@ -8,19 +8,14 @@ void createEnv(environment * e, int numberQueues, int avgTellerServTime, int num
 
 	e->numQueues = numberQueues;
 	e->tellers = malloc(numberQueues * sizeof(teller));
+	e->queueBusyTime = malloc(numberQueues * sizeof(simTime));
+	e->startQueues = malloc(numberQueues * sizeof(fifoQueue));
+	e->endQueues = malloc(numberQueues * sizeof(fifoQueue));
 	
 	for (int i=0; i < numberQueues; i++) {
 		createTeller(e->tellers + i, i);
-	}
-	
-	e->startQueues = malloc(sizeof(fifoQueue));
-	createFQueue(e->startQueues);
-
-	e->endQueues = malloc(sizeof(fifoQueue));
-	createFQueue(e->endQueues);
-
-	e->queueBusyTime = malloc(numberQueues * sizeof(int));
-	for (int i=0; i < numberQueues; i++) {
+		createFQueue(e->startQueues+i);
+		createFQueue(e->endQueues+i);
 		*(e->queueBusyTime + i) = 0.0;
 	}
 

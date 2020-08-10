@@ -2,6 +2,15 @@
 	"tasks": [
 		{
 			"type": "shell",
+			"label": "gcc build DES",
+			"command": "make debug",
+			"args": [],
+			"options": {
+				"cwd": "${workspaceFolder}/A6"
+			}
+		}, 
+		{
+			"type": "shell",
 			"label": "gcc build conversion",
 			"command": "make",
 			"args": [],
