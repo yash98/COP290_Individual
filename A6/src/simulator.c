@@ -12,10 +12,11 @@ simTime multiQueueSystem() {
 
 	customer * latestCustomer = mainEnv->customers;
 
-	enum mode {customer, teller} actionMode;
+	enum mode {customerMode, tellerMode} actionMode;
+	simTime resumeTime = 0.0;
 
 	while (lastCustomer->exitTime < 0) {
-		if (actionMode == customer) {
+		if (actionMode == customerMode) {
 			mainEnv->clock = latestCustomer->enterTime;
 			// Find the shortest queues
 			int minLength = 2147483647;
@@ -42,14 +43,54 @@ simTime multiQueueSystem() {
 			sprintf(*createdArgV+1, "%s", latestCustomer->customerId);
 
 			pushFQueue(mainEnv->startQueues+chosenQueue, createNode(createEvent(&serveCustomer, 2, createdArgV)));
+
+			debugPrintf("%lf: customer %s entered queue %s\n", mainEnv->clock, latestCustomer->customerId, chosenQueue);
 			
 			latestCustomer++;
 		} else {
-			
-			// Start Queue
-			event * sqEve = popFQueue(mainEnv->startQueues)->eve;
-			simTime busyFor = (sqEve->eventFunction) (sqEve->argVector);
+			mainEnv->clock = resumeTime;
+			for (int i = 0; i < mainEnv->numQueues; i++) {
+				if (*(mainEnv->queueBusyTime+i) == resumeTime) {
+					// End Queue
+					simTime busyFor; 
+					if ((mainEnv->endQueues+i)->length != 0) {
+						// Currently all End Queue have 0 time utilized 
+						event * eqEve = popFQueue(mainEnv->endQueues+i)->eve;
+						busyFor = (eqEve->eventFunction) (eqEve->argVector);
+						freeMemEvent(eqEve);
+
+						if (busyFor > 0.0) {
+							// Teller is taking a break
+							continue;
+						}
+					}
+					
+					// Start Queue
+					busyFor = 0.0;
+					while (busyFor == 0.0) {
+						event * sqEve = popFQueue(mainEnv->startQueues)->eve;
+						busyFor = (sqEve->eventFunction) (sqEve->argVector);
+						*(mainEnv->queueBusyTime+i) = mainEnv->clock + busyFor;
+						freeMemEvent(sqEve);
+					}
+				}
+			}
 		}
+
+		// Select next event for teller
+		simTime resumeTime = 1.79769e+308; 
+		for (int i = 0; i < mainEnv->numQueues; i++) {
+			if (*(mainEnv->queueBusyTime+i) < resumeTime) {
+				resumeTime = *(mainEnv->queueBusyTime+i);
+			}
+		}
+
+		if (resumeTime > latestCustomer->enterTime) {
+			actionMode = customerMode;
+		} else {
+			actionMode = tellerMode;
+		}
+
 	}
 }
 
@@ -63,6 +104,8 @@ int main(int argc, char * argv[]) {
 	environment * multiQueueEnv = (environment *) malloc(sizeof(environment));
 	createEnv(multiQueueEnv, numTellers, avgTellerServeTime, numCustomers, totalTime);
 	environment * mainEnv = multiQueueEnv;
+	
+	debugPrintf("Initialization of multiqueue system finished\n")
 	multiQueueSystem();
 
 	return 0;
