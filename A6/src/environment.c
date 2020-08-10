@@ -4,18 +4,24 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-void createEnv(environment * e, int numberQueues, int avgTellerServiceTime, int numCustomer, simTime totalTime) {
+void createEnv(environment * e, int numberQueues, int numTellers, simTime avgTellerServiceTime, int numCustomer, simTime totalTime) {
 	e->clock = 0.0;
 
 	e->numQueues = numberQueues;
-	e->tellers = malloc(numberQueues * sizeof(teller));
-	e->queueBusyTime = malloc(numberQueues * sizeof(simTime));
+	e->numTellers = numTellers;
+	if (numTellers == numberQueues) {
+		e->type = multiQueue;
+	} else {
+		e->type = singleQueue;
+	}
+
+	e->tellers = malloc(numTellers * sizeof(teller));
+	e->queueBusyTime = malloc(numTellers * sizeof(simTime));
 	e->startQueues = malloc(numberQueues * sizeof(fifoQueue));
-	e->endQueues = malloc(numberQueues * sizeof(fifoQueue));
+	e->endQueues = malloc(numTellers * sizeof(fifoQueue));
 	
-	for (int i=0; i < numberQueues; i++) {
+	for (int i=0; i < numTellers; i++) {
 		createTeller(e->tellers + i, i);
-		createFQueue(e->startQueues+i);
 		createFQueue(e->endQueues+i);
 		fifoQueue * relevantEndQueue = e->endQueues + i;
 
@@ -26,6 +32,10 @@ void createEnv(environment * e, int numberQueues, int avgTellerServiceTime, int 
 		pushFQueue(relevantEndQueue, createNode(createEvent(&searchCustomer, 1, createdArgV)));
 
 		*(e->queueBusyTime + i) = 0.0;
+	}
+
+	for (int i = 0; i < numberQueues; i++) {
+		createFQueue(e->startQueues+i);
 	}
 
 	e->avgTellerServiceTime = avgTellerServiceTime;

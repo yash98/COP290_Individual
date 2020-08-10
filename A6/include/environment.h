@@ -9,6 +9,8 @@ typedef struct environmentS
 	simTime clock;
 
 	int numQueues;
+	int numTellers;
+	enum environmentType {multiQueue, singleQueue} type;
 	simTime avgTellerServiceTime;
 	teller * tellers;
 
@@ -22,6 +24,6 @@ typedef struct environmentS
 	simTime totalTime;
 } environment;
 
-void createEnv(environment * e, int numberQueues, int avgTellerServiceTime, int numCustomer, simTime totalTime);
+void createEnv(environment * e, int numberQueues, int numTellers, simTime avgTellerServiceTime, int numCustomer, simTime totalTime);
 
 #endif
