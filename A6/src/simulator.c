@@ -1,6 +1,7 @@
 #include "simulator.h"
 #include "environment.h"
 #include "event.h"
+#include "def.h"
 
 #include <malloc.h>
 #include <stdlib.h>
@@ -12,8 +13,8 @@ simTime multiQueueSystem() {
 
 	customer * latestCustomer = mainEnv->customers;
 
-	enum mode {customerMode, tellerMode} actionMode;
 	simTime resumeTime = 0.0;
+	enum mode {customerMode, tellerMode} actionMode = tellerMode;
 
 	while (lastCustomer->exitTime < 0) {
 		if (actionMode == customerMode) {
@@ -39,10 +40,11 @@ simTime multiQueueSystem() {
 			char ** createdArgV = (char **) malloc(2*sizeof(char*));
 			*createdArgV = malloc(7*sizeof(char));
 			*(createdArgV+1) = malloc(7*sizeof(char));
-			sprintf(*createdArgV, "%s", chosenQueue);
-			sprintf(*createdArgV+1, "%s", latestCustomer->customerId);
+			sprintf(*createdArgV, "%d", chosenQueue);
+			sprintf(*(createdArgV+1), "%d", latestCustomer->customerId);
 
 			pushFQueue(mainEnv->startQueues+chosenQueue, createNode(createEvent(&serveCustomer, 2, createdArgV)));
+			latestCustomer->lineIndex = chosenQueue;
 
 			debugPrintf("%lf: customer %d entered queue %d\n", mainEnv->clock, latestCustomer->customerId, chosenQueue);
 			
@@ -50,7 +52,7 @@ simTime multiQueueSystem() {
 		} else {
 			mainEnv->clock = resumeTime;
 			for (int i = 0; i < mainEnv->numQueues; i++) {
-				if (*(mainEnv->queueBusyTime+i) == resumeTime) {
+				if (doubleEquality(*(mainEnv->queueBusyTime+i), resumeTime)) {
 					// End Queue
 					simTime busyFor; 
 					if ((mainEnv->endQueues+i)->length != 0) {
@@ -61,13 +63,14 @@ simTime multiQueueSystem() {
 
 						if (busyFor > 0.0) {
 							// Teller is taking a break
+							*(mainEnv->queueBusyTime+i) = mainEnv->clock + busyFor;
 							continue;
 						}
 					}
 					
 					// Start Queue
 					busyFor = 0.0;
-					while (busyFor == 0.0) {
+					while (doubleEquality(busyFor, 0.0)) {
 						event * sqEve = popFQueue(mainEnv->startQueues)->eve;
 						busyFor = (sqEve->eventFunction) (sqEve->argVector);
 						*(mainEnv->queueBusyTime+i) = mainEnv->clock + busyFor;
@@ -75,13 +78,13 @@ simTime multiQueueSystem() {
 					}
 				}
 			}
-		}
 
-		// Select next event for teller
-		simTime resumeTime = 1.79769e+308; 
-		for (int i = 0; i < mainEnv->numQueues; i++) {
-			if (*(mainEnv->queueBusyTime+i) < resumeTime) {
-				resumeTime = *(mainEnv->queueBusyTime+i);
+			// Select next event for teller
+			resumeTime = 1.79769e+308; 
+			for (int i = 0; i < mainEnv->numQueues; i++) {
+				if (*(mainEnv->queueBusyTime+i) < resumeTime) {
+					resumeTime = *(mainEnv->queueBusyTime+i);
+				}
 			}
 		}
 
@@ -90,7 +93,6 @@ simTime multiQueueSystem() {
 		} else {
 			actionMode = tellerMode;
 		}
-
 	}
 }
 
@@ -103,9 +105,9 @@ int main(int argc, char * argv[]) {
 
 	environment * multiQueueEnv = (environment *) malloc(sizeof(environment));
 	createEnv(multiQueueEnv, numTellers, avgTellerServeTime, numCustomers, totalTime);
-	environment * mainEnv = multiQueueEnv;
+	mainEnv = multiQueueEnv;
 	
-	debugPrintf("Initialization of multiqueue system finished\n");
+	debugPrintf("Initialized of multiqueue system\n");
 	multiQueueSystem();
 
 	return 0;

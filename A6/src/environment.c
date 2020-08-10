@@ -2,6 +2,7 @@
 
 #include <malloc.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 void createEnv(environment * e, int numberQueues, int avgTellerServTime, int numCustomer, simTime totalTime) {
 	e->clock = 0.0;
@@ -16,6 +17,14 @@ void createEnv(environment * e, int numberQueues, int avgTellerServTime, int num
 		createTeller(e->tellers + i, i);
 		createFQueue(e->startQueues+i);
 		createFQueue(e->endQueues+i);
+		fifoQueue * relevantEndQueue = e->endQueues + i;
+
+		// Go on break at start
+		char ** createdArgV = malloc(1*sizeof(char*));
+		*createdArgV = malloc(7*sizeof(char));
+		sprintf(*createdArgV, "%d", i);
+		pushFQueue(relevantEndQueue, createNode(createEvent(&searchCustomer, 1, createdArgV)));
+
 		*(e->queueBusyTime + i) = 0.0;
 	}
 

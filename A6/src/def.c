@@ -13,3 +13,8 @@ int debugPrintf(const char * fmt, ...) {
 	}
 	return -1;
 }
+
+int doubleEquality(double a, double b) {
+	double diff = a - b;
+	return (diff < EPSILON) && (diff > -1.0 * EPSILON);
+}
