@@ -11,7 +11,7 @@
         "type": "cppdbg",
         "request": "launch",
         "program": "${workspaceFolder}/A6/qSimDebug",
-	    "args": ["100", "4", "60", "2.3"],
+	    "args": ["10", "4", "10", "0.3"],
         "stopAtEntry": false,
         "cwd": "${workspaceFolder}/A6",
         "environment": [],

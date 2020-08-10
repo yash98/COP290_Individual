@@ -11,6 +11,11 @@ node * createNode(event * e) {
 	return n;
 }
 
+void freeMemNode(node * n) {
+	freeMemEvent(n->eve);
+	free(n);
+}
+
 void createFQueue(fifoQueue * fq) {
 	fq->head = NULL;
 	fq->tail = NULL;

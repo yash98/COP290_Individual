@@ -8,12 +8,12 @@
 
 extern environment * mainEnv;
 
-int freeMemEvent(event * e) {
+void freeMemEvent(event * e) {
 	for (int i = 0; i < e->argCount; i++) {
-		free(e->argVector+i);
+		free(*(e->argVector+i));
 	}
+	free(e->argVector);
 	free(e);
-	return 1;
 }
 
 event * createEvent(simTime (* eveFunction)(char **), int argC, char ** argV) {
@@ -35,8 +35,6 @@ simTime serveCustomer(char ** argV) {
 	argVPtr += 1;
 	int customerId = atoi(*argVPtr);
 
-	debugPrintf("%lf: teller %d started serving customer %d\n", mainEnv->clock, tellerId, customerId);
-
 	fifoQueue * relevantQueue = mainEnv->startQueues + tellerId;
 	teller * relevantTeller = mainEnv->tellers + tellerId;
 	customer * relevantCustomer = mainEnv->customers + customerId;
@@ -51,8 +49,10 @@ simTime serveCustomer(char ** argV) {
 	fifoQueue * relevantEndQueue = mainEnv->endQueues + tellerId;
 	char ** createdArgV = malloc(1*sizeof(char*));
 	*createdArgV = malloc(7*sizeof(char));
-	strcpy(*(argV), *createdArgV);
+	strcpy(*createdArgV, *(argV));
 	pushFQueue(relevantEndQueue, createNode(createEvent(&searchCustomer, 1, createdArgV)));
+
+	debugPrintf("%lf: teller %d started serving customer %d for %lf minutes\n", mainEnv->clock, tellerId, customerId, timeUtilized);
 
 	return timeUtilized;
 }
@@ -96,7 +96,7 @@ simTime searchCustomer(char ** argV) {
 		fifoQueue * relevantEndQueue = mainEnv->endQueues + tellerId;
 		char ** createdArgV = malloc(1*sizeof(char*));
 		*createdArgV = malloc(7*sizeof(char));
-		strcpy(*(argV), *createdArgV);
+		strcpy(*createdArgV, *argV);
 		pushFQueue(relevantEndQueue, createNode(createEvent(&searchCustomer, 1, createdArgV)));
 
 		return relevantTeller->breakDuration;
@@ -108,11 +108,8 @@ simTime searchCustomer(char ** argV) {
 
 	// taking job from another queue and adding for this teller
 	debugPrintf("%lf: teller %d took customer from queue %d\n", mainEnv->clock, tellerId, selection);
-	char * copyTellerId = malloc(7 * sizeof(char));
-	strcpy(copyTellerId, *argV);
-	*(takingJob->eve->argVector) = copyTellerId;
+	strcpy(*(takingJob->eve->argVector), *argV);
 	pushFQueue(relevantQueue, takingJob);
-	freeMemEvent(takingJob->eve);
 
 	free(selectedQueues);
 	return 0.0;

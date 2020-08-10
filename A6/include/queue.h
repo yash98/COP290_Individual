@@ -29,6 +29,7 @@ typedef struct nodeS
 } node;
 
 node * createNode(event * e);
+void freeMemNode(node * n);
 
 typedef struct fifoQueueS
 {

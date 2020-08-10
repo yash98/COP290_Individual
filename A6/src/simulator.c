@@ -14,6 +14,7 @@ simTime multiQueueSystem() {
 	customer * latestCustomer = mainEnv->customers;
 
 	simTime resumeTime = 0.0;
+	int takingMoreCustomer = 1;
 	enum mode {customerMode, tellerMode} actionMode = tellerMode;
 
 	while (lastCustomer->exitTime < 0) {
@@ -48,7 +49,11 @@ simTime multiQueueSystem() {
 
 			debugPrintf("%lf: customer %d entered queue %d\n", mainEnv->clock, latestCustomer->customerId, chosenQueue);
 			
-			latestCustomer++;
+			if (latestCustomer == lastCustomer) {
+				takingMoreCustomer = 0;
+			} else {
+				latestCustomer++;
+			}
 		} else {
 			mainEnv->clock = resumeTime;
 			for (int i = 0; i < mainEnv->numQueues; i++) {
@@ -57,13 +62,15 @@ simTime multiQueueSystem() {
 					simTime busyFor; 
 					if ((mainEnv->endQueues+i)->length != 0) {
 						// Currently all End Queue have 0 time utilized 
-						event * eqEve = popFQueue(mainEnv->endQueues+i)->eve;
+						node * poppedNode = popFQueue(mainEnv->endQueues+i);
+						event * eqEve = poppedNode->eve;
 						busyFor = (eqEve->eventFunction) (eqEve->argVector);
-						freeMemEvent(eqEve);
+						freeMemNode(poppedNode);
 
 						if (busyFor > 0.0) {
 							// Teller is taking a break
 							*(mainEnv->queueBusyTime+i) = mainEnv->clock + busyFor;
+							printf("Queue %d busy till %lf\n", i, *(mainEnv->queueBusyTime+i));
 							continue;
 						}
 					}
@@ -71,10 +78,12 @@ simTime multiQueueSystem() {
 					// Start Queue
 					busyFor = 0.0;
 					while (doubleEquality(busyFor, 0.0)) {
-						event * sqEve = popFQueue(mainEnv->startQueues)->eve;
+						node * poppedNode = popFQueue(mainEnv->startQueues+i);
+						event * sqEve = poppedNode->eve;
 						busyFor = (sqEve->eventFunction) (sqEve->argVector);
 						*(mainEnv->queueBusyTime+i) = mainEnv->clock + busyFor;
-						freeMemEvent(sqEve);
+						printf("Queue %d busy till %lf\n", i, *(mainEnv->queueBusyTime+i));
+						freeMemNode(poppedNode);
 					}
 				}
 			}
@@ -88,7 +97,7 @@ simTime multiQueueSystem() {
 			}
 		}
 
-		if (resumeTime > latestCustomer->enterTime) {
+		if ((takingMoreCustomer) && (resumeTime > latestCustomer->enterTime)) {
 			actionMode = customerMode;
 		} else {
 			actionMode = tellerMode;

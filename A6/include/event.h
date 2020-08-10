@@ -15,7 +15,7 @@ typedef struct eventS
 } event;
 
 event * createEvent(simTime (* eveFunction)(char **), int argC, char ** argV);
-int freeMemEvent(event * e);
+void freeMemEvent(event * e);
 
 simTime serveCustomer(char** argV);
 simTime searchCustomer(char** argV);
